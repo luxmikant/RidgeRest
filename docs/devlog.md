@@ -13,3 +13,13 @@
 
 ---
 
+## 2026-03-07 15:59 UTC — e337ca0
+**Author:** shree
+**Commit:** pin python 3.12 for render deployment
+**Changed files:**
+```
+backend/runtime.txt
+```
+
+---
+
