@@ -5,6 +5,8 @@ from typing import Optional
 class Settings(BaseSettings):
     # MongoDB
     MONGODB_URL: str
+    MONGODB_DB_NAME: str = "ridgerest"
+    MONGODB_TLS_ALLOW_INVALID_CERTIFICATES: bool = False
 
     # JWT
     SECRET_KEY: str
@@ -19,6 +21,9 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/auth/google/callback"
+
+    # Feature flags
+    ENABLE_DDTRACE: bool = False
 
     @property
     def cors_origins(self) -> list[str]:
