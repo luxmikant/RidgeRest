@@ -33,3 +33,13 @@ docs/devlog.md
 
 ---
 
+## 2026-03-08 03:46 UTC — ed05d20
+**Author:** shree
+**Commit:** fix: add runtime.txt to repo root so Render picks up Python 3.12.3
+**Changed files:**
+```
+runtime.txt
+```
+
+---
+
