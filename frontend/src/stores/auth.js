@@ -1,43 +1,61 @@
 import { defineStore } from 'pinia'
-import { computed } from 'vue'
-import { useUser, useAuth, useClerk } from '@clerk/vue'
+import { ref, computed } from 'vue'
 
+// Uses window.Clerk (imperative API) so this store is safe to call from
+// any context (router guards, Pinia setup) without needing inject().
 export const useAuthStore = defineStore('auth', () => {
-  const { user: clerkUser, isLoaded, isSignedIn } = useUser()
-  const { getToken, signOut } = useAuth()
-  const clerk = useClerk()
+  const isLoaded = ref(false)
+  const isSignedIn = ref(false)
+  const _clerkUser = ref(null)
 
-  // Normalize Clerk user shape to match what existing components expect
+  function _sync(resources) {
+    const u = resources?.user ?? window.Clerk?.user ?? null
+    isLoaded.value = true
+    isSignedIn.value = !!u
+    _clerkUser.value = u
+  }
+
+  if (typeof window !== 'undefined') {
+    function _connect() {
+      if (window.Clerk?.loaded) {
+        _sync()
+        window.Clerk.addListener(_sync)
+      } else {
+        setTimeout(_connect, 50)
+      }
+    }
+    _connect()
+  }
+
+  const initialized = isLoaded
+
   const user = computed(() => {
-    if (!clerkUser.value) return null
+    const u = _clerkUser.value
+    if (!u) return null
     return {
-      id: clerkUser.value.id,
-      name: clerkUser.value.fullName ||
-            clerkUser.value.firstName ||
-            clerkUser.value.primaryEmailAddress?.emailAddress?.split('@')[0] ||
+      id: u.id,
+      name: u.fullName ||
+            u.firstName ||
+            u.primaryEmailAddress?.emailAddress?.split('@')[0] ||
             'User',
-      email: clerkUser.value.primaryEmailAddress?.emailAddress || '',
-      role: clerkUser.value.publicMetadata?.role || null,
+      email: u.primaryEmailAddress?.emailAddress || '',
+      role: u.publicMetadata?.role || null,
       auth_provider: 'clerk',
     }
   })
 
-  // Alias used in router guards
-  const initialized = isLoaded
-
   async function logout() {
-    await signOut()
+    await window.Clerk?.signOut()
   }
 
   function redirectToLogin() {
-    clerk.value?.redirectToSignIn({ afterSignInUrl: '/dashboard-redirect' })
+    window.Clerk?.redirectToSignIn({ afterSignInUrl: '/dashboard-redirect' })
   }
 
   function redirectToSignup() {
-    clerk.value?.redirectToSignUp({ afterSignUpUrl: '/setup-role' })
+    window.Clerk?.redirectToSignUp({ afterSignUpUrl: '/setup-role' })
   }
 
-  // Legacy no-op kept so any component that calls fetchMe() doesn't throw
   async function fetchMe() {}
 
   return {
@@ -45,7 +63,6 @@ export const useAuthStore = defineStore('auth', () => {
     isLoaded,
     isSignedIn,
     initialized,
-    getToken,
     logout,
     fetchMe,
     redirectToLogin,

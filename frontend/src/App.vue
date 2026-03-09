@@ -18,14 +18,14 @@
 
 <script setup>
 import { computed, onMounted } from 'vue'
-import { ClerkLoaded, ClerkLoading, useAuth } from '@clerk/vue'
+import { ClerkLoaded, ClerkLoading } from '@clerk/vue'
 import { useAuthStore } from './stores/auth'
 import Navbar from './components/Navbar.vue'
 import Toast from './components/Toast.vue'
 
-const { isSignedIn } = useAuth()
 const authStore = useAuthStore()
-const user = authStore.user
+const isSignedIn = computed(() => authStore.isSignedIn)
+const user = computed(() => authStore.user)
 
 const isDark = computed(() => localStorage.getItem('theme') === 'dark')
 
