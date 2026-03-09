@@ -124,3 +124,13 @@ frontend/src/api/index.js
 
 ---
 
+## 2026-03-09 07:57 UTC — f1aa1d3
+**Author:** shree
+**Commit:** fix: allow Authorization header in CORS config
+**Changed files:**
+```
+backend/app/core/cors.py
+```
+
+---
+
