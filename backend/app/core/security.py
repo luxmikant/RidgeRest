@@ -14,6 +14,11 @@ logger = logging.getLogger(__name__)
 
 def _clerk_jwks_url() -> str:
     """Derive JWKS URL from Clerk publishable key (pk_live_<base64(domain)>)."""
+    if not settings.CLERK_PUBLISHABLE_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Auth not configured: CLERK_PUBLISHABLE_KEY missing from environment.",
+        )
     pk = settings.CLERK_PUBLISHABLE_KEY
     parts = pk.split("_", 2)
     encoded = parts[2] if len(parts) == 3 else pk

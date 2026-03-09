@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     MONGODB_TLS_ALLOW_INVALID_CERTIFICATES: bool = False
 
     # Clerk Auth
-    CLERK_SECRET_KEY: str
-    CLERK_PUBLISHABLE_KEY: str
+    CLERK_SECRET_KEY: str = ""
+    CLERK_PUBLISHABLE_KEY: str = ""
 
     # CORS
     FRONTEND_URL: str = "http://localhost:5173"
@@ -34,3 +34,11 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+import logging as _logging
+_log = _logging.getLogger(__name__)
+if not settings.CLERK_SECRET_KEY or not settings.CLERK_PUBLISHABLE_KEY:
+    _log.critical(
+        "CLERK_SECRET_KEY and/or CLERK_PUBLISHABLE_KEY are not set. "
+        "Authentication will be disabled. Set these env vars in Render."
+    )
