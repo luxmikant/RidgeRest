@@ -104,3 +104,13 @@ backend/app/core/security.py
 
 ---
 
+## 2026-03-09 07:26 UTC — 8a502b3
+**Author:** shree
+**Commit:** fix: remove dead legacy auth code causing NameError on startup
+**Changed files:**
+```
+backend/app/routers/auth.py
+```
+
+---
+
