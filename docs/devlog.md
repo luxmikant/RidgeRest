@@ -114,3 +114,13 @@ backend/app/routers/auth.py
 
 ---
 
+## 2026-03-09 07:52 UTC — 2a0a9d7
+**Author:** shree
+**Commit:** fix: add /api prefix to axios baseURL
+**Changed files:**
+```
+frontend/src/api/index.js
+```
+
+---
+
