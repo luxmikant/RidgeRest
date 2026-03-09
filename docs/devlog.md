@@ -43,3 +43,32 @@ runtime.txt
 
 ---
 
+## 2026-03-09 06:53 UTC — 9903ee2
+**Author:** shree
+**Commit:** feat: migrate auth to Clerk (hosted pages + Bearer token)
+**Changed files:**
+```
+backend/.env.example
+backend/app/config.py
+backend/app/core/oauth.py
+backend/app/core/security.py
+backend/app/database.py
+backend/app/routers/auth.py
+backend/requirements.txt
+backend/scripts/__init__.py
+backend/scripts/migrate_users_to_clerk.py
+frontend/.env.example
+frontend/package-lock.json
+frontend/package.json
+frontend/public/icon-192.png
+frontend/public/icon-512.png
+frontend/src/App.vue
+frontend/src/api/index.js
+frontend/src/components/Navbar.vue
+frontend/src/main.js
+frontend/src/router/index.js
+frontend/src/stores/auth.js
+```
+
+---
+
