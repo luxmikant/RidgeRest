@@ -93,3 +93,14 @@ frontend/src/stores/auth.js
 
 ---
 
+## 2026-03-09 07:18 UTC — 3e6b22e
+**Author:** shree
+**Commit:** fix: make Clerk keys optional so server starts without them (returns 503 on auth routes)
+**Changed files:**
+```
+backend/app/config.py
+backend/app/core/security.py
+```
+
+---
+
