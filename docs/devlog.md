@@ -82,3 +82,14 @@ docs/clerk-deployment.md
 
 ---
 
+## 2026-03-09 07:09 UTC — cc93e17
+**Author:** shree
+**Commit:** fix: use window.Clerk in auth store to avoid inject() outside component context
+**Changed files:**
+```
+frontend/src/App.vue
+frontend/src/stores/auth.js
+```
+
+---
+
