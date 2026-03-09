@@ -72,3 +72,13 @@ frontend/src/stores/auth.js
 
 ---
 
+## 2026-03-09 06:54 UTC — 9e3c97c
+**Author:** shree
+**Commit:** docs: Clerk deployment guide
+**Changed files:**
+```
+docs/clerk-deployment.md
+```
+
+---
+
