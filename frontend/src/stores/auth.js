@@ -1,74 +1,55 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import api from '../api'
+import { computed } from 'vue'
+import { useUser, useAuth, useClerk } from '@clerk/vue'
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null)
-  const initialized = ref(false)
-  const loading = ref(false)
+  const { user: clerkUser, isLoaded, isSignedIn } = useUser()
+  const { getToken, signOut } = useAuth()
+  const clerk = useClerk()
 
-  async function fetchMe() {
-    try {
-      const res = await api.get('/api/auth/me')
-      user.value = res.data
-      // Set Datadog RUM user
-      if (window.DD_RUM) {
-        window.DD_RUM.setUser({
-          id: res.data.id,
-          name: res.data.name,
-          email: res.data.email,
-          role: res.data.role,
-        })
-      }
-    } catch {
-      user.value = null
-    } finally {
-      initialized.value = true
+  // Normalize Clerk user shape to match what existing components expect
+  const user = computed(() => {
+    if (!clerkUser.value) return null
+    return {
+      id: clerkUser.value.id,
+      name: clerkUser.value.fullName ||
+            clerkUser.value.firstName ||
+            clerkUser.value.primaryEmailAddress?.emailAddress?.split('@')[0] ||
+            'User',
+      email: clerkUser.value.primaryEmailAddress?.emailAddress || '',
+      role: clerkUser.value.publicMetadata?.role || null,
+      auth_provider: 'clerk',
     }
-  }
+  })
 
-  async function login(email, password) {
-    loading.value = true
-    try {
-      const res = await api.post('/api/auth/login', { email, password })
-      user.value = res.data.user
-      return res.data
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function signup(name, email, password, role, department = '') {
-    loading.value = true
-    try {
-      const res = await api.post('/api/auth/signup', {
-        name, email, password, role, department,
-      })
-      user.value = res.data.user
-      return res.data
-    } finally {
-      loading.value = false
-    }
-  }
+  // Alias used in router guards
+  const initialized = isLoaded
 
   async function logout() {
-    try {
-      await api.post('/api/auth/logout')
-    } catch {
-      // Ignore errors
-    }
-    clearUser()
+    await signOut()
   }
 
-  function clearUser() {
-    user.value = null
-    initialized.value = true
+  function redirectToLogin() {
+    clerk.value?.redirectToSignIn({ afterSignInUrl: '/dashboard-redirect' })
   }
 
-  function googleLogin(role) {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-    window.location.href = `${baseUrl}/api/auth/google?role=${role}`
+  function redirectToSignup() {
+    clerk.value?.redirectToSignUp({ afterSignUpUrl: '/setup-role' })
   }
 
-  return { user, initialized, loading, fetchMe, login, signup, logout, clearUser, googleLogin }
+  // Legacy no-op kept so any component that calls fetchMe() doesn't throw
+  async function fetchMe() {}
+
+  return {
+    user,
+    isLoaded,
+    isSignedIn,
+    initialized,
+    getToken,
+    logout,
+    fetchMe,
+    redirectToLogin,
+    redirectToSignup,
+  }
 })
+

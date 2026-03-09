@@ -6,8 +6,8 @@ const routes = [
     path: '/',
     redirect: () => {
       const auth = useAuthStore()
-      if (!auth.user) return '/login'
-      return auth.user.role === 'employer' ? '/employer/dashboard' : '/employee/dashboard'
+      if (!auth.isSignedIn) return '/login'
+      return auth.user?.role === 'employer' ? '/employer/dashboard' : '/employee/dashboard'
     },
   },
   {
@@ -23,10 +23,14 @@ const routes = [
     meta: { guest: true },
   },
   {
-    path: '/oauth-callback',
-    name: 'OAuthCallback',
-    component: () => import('../views/auth/OAuthCallback.vue'),
-    meta: { guest: true },
+    path: '/setup-role',
+    name: 'SetupRole',
+    component: () => import('../views/auth/SetupRole.vue'),
+  },
+  {
+    path: '/dashboard-redirect',
+    name: 'DashboardRedirect',
+    component: () => import('../views/auth/DashboardRedirect.vue'),
   },
   // Employee routes
   {
@@ -79,30 +83,36 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to) => {
   const auth = useAuthStore()
 
-  // Wait for initial auth check
-  if (!auth.initialized) {
-    await auth.fetchMe()
+  // Wait for Clerk to finish loading (max 3 seconds)
+  let waited = 0
+  while (!auth.isLoaded && waited < 30) {
+    await new Promise((r) => setTimeout(r, 100))
+    waited++
   }
 
-  // Guest-only routes (login, signup)
-  if (to.meta.guest && auth.user) {
-    return next(auth.user.role === 'employer' ? '/employer/dashboard' : '/employee/dashboard')
+  // Guest-only routes: redirect signed-in users away
+  if (to.meta.guest && auth.isSignedIn) {
+    return '/dashboard-redirect'
   }
 
-  // Protected routes
-  if (to.meta.requiresAuth && !auth.user) {
-    return next('/login')
+  // Protected routes: redirect unauthenticated users to login
+  if (to.meta.requiresAuth && !auth.isSignedIn) {
+    return '/login'
   }
 
-  // Role check
-  if (to.meta.role && auth.user && auth.user.role !== to.meta.role) {
-    return next(auth.user.role === 'employer' ? '/employer/dashboard' : '/employee/dashboard')
+  // Signed in but no role set yet: send to onboarding
+  if (to.meta.requiresAuth && auth.isSignedIn && !auth.user?.role) {
+    return '/setup-role'
   }
 
-  next()
+  // Role mismatch: redirect to correct dashboard
+  if (to.meta.role && auth.user?.role && auth.user.role !== to.meta.role) {
+    return auth.user.role === 'employer' ? '/employer/dashboard' : '/employee/dashboard'
+  }
 })
 
 export default router
+

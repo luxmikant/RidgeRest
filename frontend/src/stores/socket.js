@@ -13,13 +13,14 @@ export const useSocketStore = defineStore('socket', () => {
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
     socket.value = io(baseUrl, {
       path: '/ws/socket.io',
-      withCredentials: true,
+      withCredentials: false,
     })
 
     socket.value.on('connect', () => {
       connected.value = true
-      // Join personal room
-      socket.value.emit('join', { user_id: userId })
+      // Join personal room — use Clerk user ID as room identifier
+      const roomId = userId || window.Clerk?.user?.id
+      if (roomId) socket.value.emit('join', { user_id: roomId })
     })
 
     socket.value.on('leave_status_changed', (data) => {
@@ -27,7 +28,10 @@ export const useSocketStore = defineStore('socket', () => {
       if (data.status === 'approved') {
         toast.show('Your leave request has been approved!', 'success')
       } else if (data.status === 'rejected') {
-        toast.show(`Your leave request was rejected: ${data.rejection_reason || ''}`, 'error')
+        toast.show(
+          `Your leave request was rejected: ${data.rejection_reason || ''}`,
+          'error'
+        )
       }
     })
 
@@ -46,3 +50,4 @@ export const useSocketStore = defineStore('socket', () => {
 
   return { socket, connected, connect, disconnect }
 })
+

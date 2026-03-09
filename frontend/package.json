@@ -13,6 +13,7 @@
     "vue-router": "^4.4.0",
     "pinia": "^2.2.0",
     "axios": "^1.7.0",
+    "@clerk/vue": "^2.0.1",
     "socket.io-client": "^4.7.0",
     "chart.js": "^4.4.0",
     "vue-chartjs": "^5.3.0",

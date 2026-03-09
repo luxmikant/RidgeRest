@@ -79,7 +79,4 @@ async function handleLogout() {
 .nav-link {
   @apply text-sm text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors;
 }
-.router-link-active {
-  @apply text-blue-600 dark:text-blue-400 font-medium;
-}
 </style>

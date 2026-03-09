@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -8,19 +7,13 @@ class Settings(BaseSettings):
     MONGODB_DB_NAME: str = "ridgerest"
     MONGODB_TLS_ALLOW_INVALID_CERTIFICATES: bool = False
 
-    # JWT
-    SECRET_KEY: str
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_HOURS: int = 8
+    # Clerk Auth
+    CLERK_SECRET_KEY: str
+    CLERK_PUBLISHABLE_KEY: str
 
     # CORS
     FRONTEND_URL: str = "http://localhost:5173"
     EXTRA_CORS_ORIGINS: str = ""
-
-    # Google OAuth
-    GOOGLE_CLIENT_ID: str = ""
-    GOOGLE_CLIENT_SECRET: str = ""
-    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/auth/google/callback"
 
     # Feature flags
     ENABLE_DDTRACE: bool = False

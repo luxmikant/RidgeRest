@@ -2,22 +2,37 @@ import axios from 'axios'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
-  withCredentials: true, // Send httpOnly cookies
+  withCredentials: false,
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Response interceptor: auto-logout on 401
+// Attach Clerk session token to every request
+api.interceptors.request.use(async (config) => {
+  try {
+    if (window.Clerk?.session) {
+      const token = await window.Clerk.session.getToken()
+      if (token) config.headers.Authorization = `Bearer ${token}`
+    }
+  } catch {
+    // Clerk not ready yet — request proceeds without auth header
+  }
+  return config
+})
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      const { useAuthStore } = await import('../stores/auth')
-      const authStore = useAuthStore()
-      authStore.clearUser()
-      window.location.href = '/login'
+      if (window.Clerk?.user) {
+        // Signed in but no profile — send to onboarding
+        window.location.href = '/setup-role'
+      } else {
+        window.Clerk?.redirectToSignIn()
+      }
     }
     return Promise.reject(error)
   }
 )
 
 export default api
+
